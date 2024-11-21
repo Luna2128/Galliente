@@ -41,6 +41,45 @@ Para trabajar eficientemente en este proyecto, se recomienda el uso de las sigui
 
 ---
 
+### **Ejecución del Proyecto con Docker Compose**
+
+El proyecto utiliza Docker Compose para gestionar los servicios. Sigue los pasos a continuación para ejecutar el entorno:
+
+1. **Navegar a la carpeta del proyecto:**
+   - Asegúrate de estar en la carpeta donde se encuentra el archivo `docker-compose.yml`. 
+   - En este caso, la carpeta se llama `nginx-php`.
+
+     ```bash
+     cd nginx-php
+     ```
+
+2. **Construir los contenedores:**
+   - Ejecuta el siguiente comando para construir las imágenes de Docker especificadas en el archivo `Dockerfile`:
+
+     ```bash
+     docker-compose build
+     ```
+
+3. **Levantar los servicios:**
+   - Inicia los servicios definidos en `docker-compose.yml` ejecutando:
+
+     ```bash
+     docker-compose up
+     ```
+
+4. **Acceso a los servicios:**
+   - Los servicios estarán disponibles en los puertos configurados dentro del archivo `docker-compose.yml`.
+   - Por ejemplo, si usas un servidor NGINX, verifica accediendo a `http://localhost`.
+
+5. **Detener los servicios:**
+   - Para detener los contenedores en ejecución, usa el siguiente comando:
+
+     ```bash
+     docker-compose down
+     ```
+
+---
+
 ### **Configuración Adicional**
 
 1. **Configuración de WSL:**
