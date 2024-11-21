@@ -1,0 +1,1 @@
+docker exec -ti nginx-rtmp-server bash
