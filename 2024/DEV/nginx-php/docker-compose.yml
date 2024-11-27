@@ -11,3 +11,30 @@ services:
       - ./www.conf:/etc/php/7.4/fpm/pool.d/www.conf
       - ./php-fpm.conf:/etc/php/7.4/fpm/php-fpm.conf
       - ./logs:/var/log/nginx
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-server
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password  # Cambia esto por una contraseña segura
+      MYSQL_DATABASE: GALLIENTE           # Nombre de la base de datos
+      MYSQL_USER: GALLIENTE               # Usuario de la base de datos
+      MYSQL_PASSWORD: user_password       # Contraseña del usuario
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"  # Acceso a phpMyAdmin en localhost:8080
+    environment:
+      PMA_HOST: mysql-server
+      MYSQL_ROOT_PASSWORD: root_password  # Debe coincidir con el configurado en MySQL
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
