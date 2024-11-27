@@ -78,10 +78,10 @@ $result = $conn->query($sql);
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
             <!-- Menú con todas las opciones -->
             <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
+            <a class="nav-link" href="../panel">Panel Principal</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="streams.php">Streams</a>
+            <a class="nav-link" href="./streams/">Streams</a>
             </li>
             <li class="nav-item">
             <a class="nav-link" href="/usuarios/">Usuarios</a>

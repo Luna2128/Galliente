@@ -7,7 +7,7 @@ include('resources/db.php');
 
 // Verificar si el usuario ya está logueado
 if (isset($_SESSION['userid'])) {
-    header("Location: dashboard.php"); // Si está logueado, redirigir al dashboard
+    header("Location: /panel/"); // Si está logueado, redirigir al dashboard
     exit();
 }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Autenticación exitosa, crear sesión
                 $_SESSION['userid'] = $user['USERID'];
                 $_SESSION['username'] = $user['USERNAME'];
-                header("Location: dashboard/"); // Redirigir al dashboard
+                header("Location: panel/"); // Redirigir al dashboard
                 exit();
             }
         }
