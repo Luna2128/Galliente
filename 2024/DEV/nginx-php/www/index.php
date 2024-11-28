@@ -2,8 +2,12 @@
 // Iniciar sesión para gestionar la autenticación
 session_start();
 
+// Incluir el archivo de vista
+include($_SERVER['DOCUMENT_ROOT']."/resources/pagina.php");
+
 // Incluir el archivo de conexión a la base de datos
 include('resources/db.php');
+
 
 // Verificar si el usuario ya está logueado
 if (isset($_SESSION['userid'])) {
@@ -51,16 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+$pagina = new Page;
+$pagina->header();
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -87,6 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<?php 
+$pagina->footer();
+?>
 </body>
 </html>

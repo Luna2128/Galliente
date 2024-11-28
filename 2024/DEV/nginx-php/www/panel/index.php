@@ -1,94 +1,144 @@
 <?php
 session_start(); // Asegúrate de que la sesión esté iniciada
 
+// Incluir el archivo de vista
+include($_SERVER['DOCUMENT_ROOT']."/resources/pagina.php");
+
 // Si no hay sesión, redirige al login
 if (!isset($_SESSION['username'])) {
     header("Location: /"); 
     exit();
 }
 
-$username = $_SESSION['username']; // Nombre del usuario en la sesión
+$username = $_SESSION['username'];
+
+$pagina = new Page;
+$pagina->header();
+$pagina->navbar();
+
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galliente</title>
-    <!-- Incluyendo Bootstrap desde CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .navbar {
-            border-bottom: 2px solid #007bff; /* Línea debajo de la navbar */
-        }
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            transition: color 0.3s;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #007bff; /* Cambiar color al pasar el mouse */
-        }
-        .dropdown-menu {
-            border-radius: 5px; /* Bordes redondeados para el dropdown */
-        }
-        .dropdown-item:hover {
-            background-color: #f8f9fa; /* Resaltar item al pasar el mouse */
-        }
-        .navbar-toggler-icon {
-            background-color: #007bff; /* Cambiar color del icono del toggle */
-        }
-    </style>
-</head>
-<body>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <!-- Brand (izquierda) -->
-    <a class="navbar-brand" href="#">Galliente</a>
-    
-    <!-- Botón de toggle para móviles -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Menú de navegación -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-        <!-- Menú con todas las opciones -->
-        <li class="nav-item">
-          <a class="nav-link" href="../panel/">Panel Principal</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="../streams/">Streams</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/usuarios/">Usuarios</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <?php echo htmlspecialchars($username); ?> <!-- Nombre del usuario -->
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/resources/logout.php">Cerrar sesión</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
+<main>
+<div class="container">
 <!-- Contenido principal -->
-<div class="container mt-5">
-    <h1>Bienvenido, <?php echo htmlspecialchars($username); ?>!</h1>
-    <p>Esta es la página de Galliente.</p>
+<div class="d-flex flex-column min-vh-100 mt-5">
+    <div class="my-5">
+        <div class="p-5 text-center bg-body-tertiary">
+            <div class="container py-5">
+                <h1><i class="bi-person"></i> Bienvenido, <?php echo htmlspecialchars($username); ?>!</h1>
+                <p class="col-lg-8 mx-auto lead">
+                    Esta es la página de Galliente. 
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+
+
+    <?php
+    // URL de las estadísticas de NGINX
+    // Ruta al archivo XML o la URL que contiene los datos (en tu caso, es un archivo XML)
+    $xml_content = file_get_contents('http://127.0.0.1/stat.xml');
+
+        /// Verifica si se pudo obtener el XML
+    if ($xml_content === false) {
+      echo "No se pudo obtener el archivo XML.";
+      exit;
+    }
+
+    // Cargar el contenido del XML
+    libxml_use_internal_errors(true); // Para manejar errores de XML
+    $xml = simplexml_load_string($xml_content);
+
+    // Verificar si hubo algún error al cargar el XML
+    if ($xml === false) {
+      echo "Error al parsear el XML.";
+      exit;
+    }
+
+    // Analizar el nombre del stream y la información de los clientes
+    $stream = $xml->server->application->live->stream;
+
+    // Comprobamos que haya un stream
+    if ($stream) {
+      $stream_name = (string)$stream->name;
+      $nclients = (int)$stream->nclients;
+      
+      echo '
+      <div class="container my-5">
+        <div class="p-5bg-body-tertiary rounded-3">
+        <h3 class="text-body-emphasis"><i class="bi-camera-video"></i> Datos de las Tranmisión</h3>
+        <ul>
+          <li>Stream: '.$stream_name.'</li>
+          <li>Número de clientes: '.$nclients.'</li>
+          ';
+      
+
+      // Analizamos los clientes conectados
+      foreach ($stream->client as $client) {
+          $client_ip = (string)$client->address;
+          $status = '';
+
+          // Verificar si el cliente está activo o publicando
+          if (isset($client->active)) {
+              $status = 'Activo';
+          } elseif (isset($client->publishing)) {
+              $status = 'Publicando';
+          }
+          echo '<li>Cliente IP:'.$client_ip.' - Estado: '.$status.'</li>';
+      }
+      echo '
+              </ul>
+        </div>
+      </div>
+     
+      <hr>';
+
+      echo '
+      <div class="my-5 text-center">
+        <video id="my-video" class="video-js vjs-default-skin" width="640" height="360" controls autoplay muted
+            playsinline>
+            <source src="http://192.168.100.36/streams/hls/test.m3u8" type="application/x-mpegURL">
+      </video>
+    </div>';
+    } else {
+      echo '
+      <div class="alert alert-danger" role="alert">
+        No hay transmisiones activas
+      </div>
+      ';
+    }
+
+    ?>
+
+    
+
 </div>
 
-<!-- Bootstrap JS y dependencias (Popper.js) -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
+</div>
+<?php
+$pagina->footer();
+?>
+  </main>
+
+<script>
+videojs.log.level('debug');
+
+var player = videojs('my-video', {
+    controls: true,
+    autoplay: true,
+    preload: 'auto',
+    fluid: true // Makes the player responsive
+});
+
+player.on('error', function() {
+    console.error('Player error:', player.error());
+    if (player.canPlayType('application/vnd.apple.mpegurl') === '') {
+        console.log('HLS not natively supported, using plugin fallback.');
+    }
+});
+</script>
 </body>
+
 </html>
